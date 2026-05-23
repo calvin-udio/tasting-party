@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useRef } from 'react'
 import { collection, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
 import { useGameState } from '../hooks/useGameState'
@@ -9,9 +9,10 @@ import { ROUNDS } from '../data/rounds'
 
 // Griffin, don't hack this please
 export function AdminPage() {
-  const { gameState, loading } = useGameState()
+  const { gameState, loading, error } = useGameState()
   const [submissionCount, setSubmissionCount] = useState(0)
   const [working, setWorking] = useState(false)
+  const workingRef = useRef(false)
 
   useEffect(() => {
     if (!gameState || gameState.phase !== 'tasting') {
@@ -26,11 +27,14 @@ export function AdminPage() {
   }, [gameState?.currentRound, gameState?.phase])
 
   async function run(fn) {
+    if (workingRef.current) return
+    workingRef.current = true
     setWorking(true)
-    try { await fn() } finally { setWorking(false) }
+    try { await fn() } finally { workingRef.current = false; setWorking(false) }
   }
 
   if (loading) return <div className="screen-center"><div className="spinner" /></div>
+  if (error) return <div className="screen-center"><p className="waiting-text">Connection error — check your network and reload.</p></div>
 
   const round = gameState ? ROUNDS[gameState.currentRound] : null
   const isLastRound = gameState && gameState.currentRound >= ROUNDS.length - 1

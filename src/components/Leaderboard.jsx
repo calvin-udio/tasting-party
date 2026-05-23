@@ -11,11 +11,14 @@ export function Leaderboard({ highlightPlayerId, finalMode = false }) {
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, 'scores'), snap => {
-      const playerMap = Object.fromEntries(PLAYERS.map(p => [p.id, p.name]))
-      const data = snap.docs.map(d => {
-        const doc = d.data()
-        return { id: d.id, ...doc, name: playerMap[d.id] ?? doc.name }
-      })
+      const scoreMap = Object.fromEntries(snap.docs.map(d => [d.id, d.data()]))
+      // Drive from PLAYERS so adds/removes in players.js are reflected immediately
+      const data = PLAYERS.map(p => ({
+        id: p.id,
+        name: p.name,
+        totalScore: scoreMap[p.id]?.totalScore ?? 0,
+        roundScores: scoreMap[p.id]?.roundScores ?? {},
+      }))
       data.sort((a, b) => b.totalScore - a.totalScore)
       setScores(data)
     })

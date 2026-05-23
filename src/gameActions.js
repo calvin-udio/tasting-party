@@ -2,13 +2,15 @@ import {
   doc, setDoc, updateDoc, getDocs, collection,
   writeBatch, increment, serverTimestamp,
 } from 'firebase/firestore'
+
+const merge = { merge: true }
 import { db } from './firebase'
 import { PLAYERS } from './data/players'
 import { ROUNDS } from './data/rounds'
 
 export function calculateScore(answers, correctOrder, cantParticipate) {
   if (cantParticipate) return 1
-  if (!answers || answers.length !== 4) return 0
+  if (!Array.isArray(answers) || answers.length !== 4) return 0
   let correct = 0
   for (let i = 0; i < 4; i++) {
     if (answers[i] === correctOrder[i] - 1) correct++
@@ -54,10 +56,10 @@ export async function endRound(currentRound) {
     const { answers, cantParticipate } = subDoc.data()
     const score = calculateScore(answers, correctOrder, cantParticipate)
     batch.update(subDoc.ref, { score })
-    batch.update(doc(db, 'scores', subDoc.id), {
+    batch.set(doc(db, 'scores', subDoc.id), {
       totalScore: increment(score),
       [`roundScores.${currentRound}`]: score,
-    })
+    }, merge)
   })
 
   const isLast = currentRound >= ROUNDS.length - 1

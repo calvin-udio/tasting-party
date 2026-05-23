@@ -11,7 +11,7 @@ import { ROUNDS } from '../data/rounds'
 
 export function ParticipantPage() {
   const [playerId, setPlayerId] = useState(() => localStorage.getItem('tp-player'))
-  const { gameState, loading } = useGameState()
+  const { gameState, loading, error } = useGameState()
 
   function selectPlayer(id) {
     localStorage.setItem('tp-player', id)
@@ -35,12 +35,13 @@ export function ParticipantPage() {
 
   if (playerId && !player) {
     clearPlayer()
-    return null
+    return <PlayerSelect onSelect={selectPlayer} />
   }
 
   if (!playerId) return <PlayerSelect onSelect={selectPlayer} />
 
   if (loading) return <div className="screen-center"><div className="spinner" /></div>
+  if (error) return <div className="screen-center"><p className="waiting-text">Connection error — check your network and reload.</p></div>
 
   return (
     <div className="page">
