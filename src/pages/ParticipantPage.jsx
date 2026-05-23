@@ -7,6 +7,7 @@ import { RoundResults } from '../components/RoundResults'
 import { Leaderboard } from '../components/Leaderboard'
 import { ChampionsSection } from '../components/ChampionsSection'
 import { PLAYERS } from '../data/players'
+import { ROUNDS } from '../data/rounds'
 
 export function ParticipantPage() {
   const [playerId, setPlayerId] = useState(() => localStorage.getItem('tp-player'))
@@ -64,6 +65,17 @@ export function ParticipantPage() {
             <div className="lobby-status">
               <h2 className="welcome-heading">Welcome, {player.name}!</h2>
               <p className="waiting-text">The party hasn't started yet. Hang tight…</p>
+            </div>
+            <div className="lobby-rounds">
+              <p className="section-label">Tonight's lineup</p>
+              <ol className="lobby-round-list">
+                {ROUNDS.map((round, i) => (
+                  <li key={i} className="lobby-round-item">
+                    <span className="lobby-round-category">{round.category}</span>
+                    <span className="lobby-round-nominator">by {round.nominatedBy}</span>
+                  </li>
+                ))}
+              </ol>
             </div>
           </div>
         )}

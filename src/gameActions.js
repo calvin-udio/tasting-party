@@ -11,7 +11,7 @@ export function calculateScore(answers, correctOrder, cantParticipate) {
   if (!answers || answers.length !== 4) return 0
   let correct = 0
   for (let i = 0; i < 4; i++) {
-    if (answers[i] === correctOrder[i]) correct++
+    if (answers[i] === correctOrder[i] - 1) correct++
   }
   // Getting exactly 3 correct is impossible in a bijection, so scores are: 0,1,2,4
   return correct

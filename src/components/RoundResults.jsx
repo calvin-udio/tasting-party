@@ -27,11 +27,11 @@ export function RoundResults({ roundIndex, playerId }) {
       <div className="correct-answers">
         <p className="section-label">The Answers</p>
         {round.correctOrder.map((typeIdx, sampleIdx) => {
-          const type = round.types[typeIdx]
+          const type = round.types[typeIdx - 1]
           const playerTypeIdx = submission?.answers?.[sampleIdx]
           const didSubmit = submission && !submission.cantParticipate && submission.answers
-          const isCorrect = didSubmit && playerTypeIdx === typeIdx
-          const isWrong = didSubmit && playerTypeIdx !== typeIdx
+          const isCorrect = didSubmit && playerTypeIdx === typeIdx - 1
+          const isWrong = didSubmit && playerTypeIdx !== typeIdx - 1
 
           return (
             <div

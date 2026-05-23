@@ -304,6 +304,67 @@ button {
   gap: 8px;
 }
 
+/* ── Lobby Rounds Lineup ─────────────────────── */
+
+.lobby-rounds {
+  text-align: left;
+}
+
+.lobby-round-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  background: rgba(255, 255, 255, 0.07);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  counter-reset: round-counter;
+}
+
+.lobby-round-item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 18px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  counter-increment: round-counter;
+}
+.lobby-round-item:last-child {
+  border-bottom: none;
+}
+.lobby-round-item::before {
+  content: counter(round-counter);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(228, 176, 32, 0.18);
+  border: 1.5px solid var(--citrus);
+  color: var(--citrus);
+  font-size: 11px;
+  font-weight: 800;
+  flex-shrink: 0;
+}
+
+.lobby-round-category {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+}
+
+.lobby-round-nominator {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.45);
+  font-style: italic;
+  flex-shrink: 0;
+  text-align: right;
+}
+
 /* ── Round Header ────────────────────────────── */
 
 .tasting-round,
@@ -417,6 +478,7 @@ button {
   overflow: hidden;
   display: -webkit-box;
   -webkit-line-clamp: 3;
+  line-clamp: 3;
   -webkit-box-orient: vertical;
 }
 

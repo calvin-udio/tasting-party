@@ -86,7 +86,7 @@ export function AdminPage() {
                   <p className="answer-key-label">Answer key</p>
                   {round.correctOrder.map((typeIdx, sampleIdx) => (
                     <div key={sampleIdx} className="answer-key-row">
-                      Sample {sampleIdx + 1} → {round.types[typeIdx].name}
+                      Sample {sampleIdx + 1} → {round.types[typeIdx - 1].name}
                     </div>
                   ))}
                 </div>

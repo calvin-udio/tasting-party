@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { collection, onSnapshot } from 'firebase/firestore'
 import { db } from '../firebase'
+import { PLAYERS } from '../data/players'
 
 const MEDALS = ['🥇', '🥈', '🥉']
 const PODIUM_CLASS = ['rank-gold', 'rank-silver', 'rank-bronze']
@@ -10,7 +11,11 @@ export function Leaderboard({ highlightPlayerId, finalMode = false }) {
 
   useEffect(() => {
     const unsub = onSnapshot(collection(db, 'scores'), snap => {
-      const data = snap.docs.map(d => ({ id: d.id, ...d.data() }))
+      const playerMap = Object.fromEntries(PLAYERS.map(p => [p.id, p.name]))
+      const data = snap.docs.map(d => {
+        const doc = d.data()
+        return { id: d.id, ...doc, name: playerMap[d.id] ?? doc.name }
+      })
       data.sort((a, b) => b.totalScore - a.totalScore)
       setScores(data)
     })
@@ -18,6 +23,14 @@ export function Leaderboard({ highlightPlayerId, finalMode = false }) {
   }, [])
 
   if (scores.length === 0) return null
+
+  // Standard competition ranking: tied players share the same rank, next rank skips
+  const ranked = scores.map((player, i, arr) => {
+    const rank = arr.findIndex(p => p.totalScore === player.totalScore) + 1
+    return { ...player, rank }
+  })
+
+  const winners = ranked.filter(p => p.rank === 1)
 
   return (
     <div className="leaderboard">
@@ -28,11 +41,11 @@ export function Leaderboard({ highlightPlayerId, finalMode = false }) {
         </div>
       )}
 
-      {finalMode && scores.length > 0 && (
+      {finalMode && (
         <div className="winner-card">
           <div className="winner-trophy">🏆</div>
-          <div className="winner-label">Winner</div>
-          <div className="winner-name">{scores[0].name}</div>
+          <div className="winner-label">{winners.length > 1 ? 'Winners' : 'Winner'}</div>
+          <div className="winner-name">{winners.map(p => p.name).join(' & ')}</div>
         </div>
       )}
 
@@ -45,15 +58,15 @@ export function Leaderboard({ highlightPlayerId, finalMode = false }) {
           </tr>
         </thead>
         <tbody>
-          {scores.map((player, i) => (
+          {ranked.map(player => (
             <tr
               key={player.id}
               className={[
-                finalMode ? (PODIUM_CLASS[i] ?? '') : '',
+                finalMode ? (PODIUM_CLASS[player.rank - 1] ?? '') : '',
                 player.id === highlightPlayerId ? 'highlight' : '',
               ].filter(Boolean).join(' ')}
             >
-              <td className="rank">{finalMode ? (MEDALS[i] ?? i + 1) : i + 1}</td>
+              <td className="rank">{finalMode ? (MEDALS[player.rank - 1] ?? player.rank) : player.rank}</td>
               <td className="player-name">{player.name}</td>
               <td className="total-score">{player.totalScore}</td>
             </tr>
