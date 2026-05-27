@@ -10,10 +10,10 @@ export const ROUNDS = [
     category: "Olive Oil",
     nominatedBy: "Raines and Becca",
     types: [
-      { name: "Carapelli", tastingNotes: "Description 1" },
-      { name: "Trader Joe’s", tastingNotes: "Description 2" },
-      { name: "La Espanola", tastingNotes: "Description 3" },
-      { name: "Graza Drizzle", tastingNotes: "Description 4" },
+      { name: "Expensive EVOO", tastingNotes: "100pt rated Spanish olive oil\nFresh-cut grass, tomato leaf, green almond, pepper\nRich and silky" },
+      { name: "Cheap EVOO", tastingNotes: "ShopRite brand basic olive oil\nMild olive, buttery, subtle pepper\nSmooth and approachable" },
+      { name: "Lemon EVOO", tastingNotes: "Lemon infused olive oil\nBright lemon peel, light olive, fresh citrus\nSmooth and light-bodied" },
+      { name: "Black Truffle EVOO", tastingNotes: "Black truffle infused olive oil\nEarthy mushroom, savory umami, deep lingering\nLight oil with intense aroma" },
     ],
     correctOrder: [3, 1, 4, 2],
   },
@@ -41,7 +41,7 @@ export const ROUNDS = [
   },
   {
     category: "Bagels",
-    nominatedBy: "Grace and Alex",
+    nominatedBy: "Ish and Parul",
     types: [
       { name: "A", tastingNotes: "Description 1" },
       { name: "B", tastingNotes: "Description 2" },
@@ -51,7 +51,7 @@ export const ROUNDS = [
     correctOrder: [1, 4, 2, 3],
   },
   {
-    category: "Pickes",
+    category: "Pickles",
     nominatedBy: "Cyrus and Abbi",
     types: [
       { name: "A", tastingNotes: "Description 1" },
@@ -95,13 +95,13 @@ export const ROUNDS = [
     correctOrder: [3, 1, 4, 2],
   },
   {
-    category: "Ice Cream",
+    category: "Vanilla Bean Ice Cream",
     nominatedBy: "Seth and Rachel",
     types: [
-      { name: "A", tastingNotes: "Description 1" },
-      { name: "B", tastingNotes: "Description 2" },
-      { name: "C", tastingNotes: "Description 3" },
-      { name: "D", tastingNotes: "Description 4" },
+      { name: "McConnell's", tastingNotes: "Classic, robust vanilla\nNot overly sweet" },
+      { name: "Alec's Tahitian", tastingNotes: "Fruity, floral vanilla\nMarshmallow-like sweetness" },
+      { name: "Alden's Organic", tastingNotes: "Mild, balanced vanilla\nLight, fluffy, aerated" },
+      { name: "Straus Family Organic", tastingNotes: "Super premium, less air, more cream\nSweet cream and egg yolk forward" },
     ],
     correctOrder: [2, 4, 1, 3],
   },
