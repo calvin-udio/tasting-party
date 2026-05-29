@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react'
 import confetti from 'canvas-confetti'
+import { doc, onSnapshot } from 'firebase/firestore'
+import { db } from '../firebase'
 import { useGameState } from '../hooks/useGameState'
 import { PlayerSelect } from '../components/PlayerSelect'
 import { TastingRound } from '../components/TastingRound'
@@ -9,9 +11,19 @@ import { ChampionsSection } from '../components/ChampionsSection'
 import { PLAYERS } from '../data/players'
 import { ROUNDS } from '../data/rounds'
 
+const LATE_ARRIVAL_ID = 'player7'
+
+function getScoredRoundCount(gs) {
+  if (!gs) return 0
+  if (gs.phase === 'scored' || gs.phase === 'complete') return gs.currentRound + 1
+  return gs.currentRound
+}
+
 export function ParticipantPage() {
   const [playerId, setPlayerId] = useState(() => localStorage.getItem('tp-player'))
   const { gameState, loading, error } = useGameState()
+  const [catchupRound, setCatchupRound] = useState(null)
+  const [missedRounds, setMissedRounds] = useState([])
 
   function selectPlayer(id) {
     localStorage.setItem('tp-player', id)
@@ -30,6 +42,18 @@ export function ParticipantPage() {
       setTimeout(() => confetti({ particleCount: 120, spread: 80, origin: { x: 0.8, y: 0.6 } }), 700)
     }
   }, [gameState?.phase])
+
+  useEffect(() => {
+    if (playerId !== LATE_ARRIVAL_ID || !gameState) return
+    const unsub = onSnapshot(doc(db, 'scores', LATE_ARRIVAL_ID), snap => {
+      const roundScores = snap.exists() ? (snap.data().roundScores || {}) : {}
+      const scoredCount = getScoredRoundCount(gameState)
+      const missed = Array.from({ length: scoredCount }, (_, i) => i)
+        .filter(i => roundScores[i] === undefined)
+      setMissedRounds(missed)
+    })
+    return unsub
+  }, [playerId, gameState])
 
   const player = PLAYERS.find(p => p.id === playerId)
 
@@ -53,53 +77,88 @@ export function ParticipantPage() {
       </header>
 
       <main className="page-main">
-        {!gameState && (
-          <div className="screen-center">
-            <p className="waiting-text">Waiting for the host to set up the game…</p>
+        {catchupRound !== null ? (
+          <div className="catchup-view">
+            <button className="catchup-back-btn" onClick={() => setCatchupRound(null)}>
+              ← Back to game
+            </button>
+            <TastingRound
+              roundIndex={catchupRound}
+              playerId={playerId}
+              retroactive
+              onRetroSubmit={() => setCatchupRound(null)}
+            />
           </div>
-        )}
+        ) : (
+          <>
+            {!gameState && (
+              <div className="screen-center">
+                <p className="waiting-text">Waiting for the host to set up the game…</p>
+              </div>
+            )}
 
-        {gameState?.phase === 'lobby' && (
-          <div className="lobby-waiting">
-            <h1 className="lobby-title">4th Annual Tasting Party</h1>
-            <ChampionsSection />
-            <div className="lobby-status">
-              <h2 className="welcome-heading">Welcome, {player.name}!</h2>
-              <p className="waiting-text">The party hasn't started yet. Hang tight…</p>
-            </div>
-            <div className="lobby-rounds">
-              <p className="section-label">Tonight's lineup</p>
-              <ol className="lobby-round-list">
-                {ROUNDS.map((round, i) => (
-                  <li key={i} className="lobby-round-item">
-                    <span className="lobby-round-category">{round.category}</span>
-                    <span className="lobby-round-nominator">by {round.nominatedBy}</span>
-                  </li>
-                ))}
-              </ol>
-            </div>
-          </div>
-        )}
+            {gameState?.phase === 'lobby' && (
+              <div className="lobby-waiting">
+                <h1 className="lobby-title">4th Annual Tasting Party</h1>
+                <ChampionsSection />
+                <div className="lobby-status">
+                  <h2 className="welcome-heading">Welcome, {player.name}!</h2>
+                  <p className="waiting-text">The party hasn't started yet. Hang tight…</p>
+                </div>
+                <div className="lobby-rounds">
+                  <p className="section-label">Tonight's lineup</p>
+                  <ol className="lobby-round-list">
+                    {ROUNDS.map((round, i) => (
+                      <li key={i} className="lobby-round-item">
+                        <span className="lobby-round-category">{round.category}</span>
+                        <span className="lobby-round-nominator">by {round.nominatedBy}</span>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+              </div>
+            )}
 
-        {gameState?.phase === 'tasting' && (
-          <TastingRound
-            roundIndex={gameState.currentRound}
-            playerId={playerId}
-          />
-        )}
+            {gameState?.phase === 'tasting' && (
+              <TastingRound
+                roundIndex={gameState.currentRound}
+                playerId={playerId}
+              />
+            )}
 
-        {gameState?.phase === 'scored' && (
-          <RoundResults
-            roundIndex={gameState.currentRound}
-            playerId={playerId}
-          />
-        )}
+            {gameState?.phase === 'scored' && (
+              <RoundResults
+                roundIndex={gameState.currentRound}
+                playerId={playerId}
+              />
+            )}
 
-        {gameState?.phase === 'complete' && (
-          <div className="final-screen">
-            <h2 className="final-heading">Game Complete!</h2>
-            <Leaderboard highlightPlayerId={playerId} finalMode />
-          </div>
+            {gameState?.phase === 'complete' && (
+              <div className="final-screen">
+                <h2 className="final-heading">Game Complete!</h2>
+                <Leaderboard highlightPlayerId={playerId} finalMode />
+              </div>
+            )}
+
+            {missedRounds.length > 0 && (
+              <div className="catchup-notice">
+                <p className="catchup-notice-title">
+                  You missed {missedRounds.length} round{missedRounds.length > 1 ? 's' : ''} — submit your guesses to get scored!
+                </p>
+                <div className="catchup-round-list">
+                  {missedRounds.map(i => (
+                    <button
+                      key={i}
+                      className="catchup-round-btn"
+                      onClick={() => setCatchupRound(i)}
+                    >
+                      Round {i + 1}: {ROUNDS[i].category}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </>
         )}
       </main>
     </div>

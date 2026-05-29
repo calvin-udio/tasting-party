@@ -2,8 +2,9 @@ import { useState, useEffect } from 'react'
 import { doc, getDoc, setDoc, serverTimestamp } from 'firebase/firestore'
 import { db } from '../firebase'
 import { ROUNDS } from '../data/rounds'
+import { submitRetroactiveRound } from '../gameActions'
 
-export function TastingRound({ roundIndex, playerId }) {
+export function TastingRound({ roundIndex, playerId, retroactive = false, onRetroSubmit }) {
   const round = ROUNDS[roundIndex]
   const [selections, setSelections] = useState([null, null, null, null])
   const [activeType, setActiveType] = useState(null)
@@ -58,13 +59,19 @@ export function TastingRound({ roundIndex, playerId }) {
   }
 
   async function handleSubmit() {
-    const subRef = doc(db, 'rounds', String(roundIndex), 'submissions', playerId)
-    await setDoc(subRef, {
-      answers: cantParticipate ? null : selections,
-      cantParticipate,
-      submittedAt: serverTimestamp(),
-    })
-    setSubmitted(true)
+    if (retroactive) {
+      await submitRetroactiveRound(roundIndex, playerId, cantParticipate ? null : selections, cantParticipate)
+      setSubmitted(true)
+      if (onRetroSubmit) onRetroSubmit()
+    } else {
+      const subRef = doc(db, 'rounds', String(roundIndex), 'submissions', playerId)
+      await setDoc(subRef, {
+        answers: cantParticipate ? null : selections,
+        cantParticipate,
+        submittedAt: serverTimestamp(),
+      })
+      setSubmitted(true)
+    }
   }
 
   if (loading) return <div className="screen-center"><div className="spinner" /></div>
@@ -157,7 +164,7 @@ export function TastingRound({ roundIndex, playerId }) {
       ) : (
         <div className="submitted-banner">
           <span className="check-icon">✓</span>
-          Submitted — waiting for the round to end
+          {retroactive ? 'Submitted!' : 'Submitted — waiting for the round to end'}
         </div>
       )}
     </div>

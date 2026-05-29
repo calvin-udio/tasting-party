@@ -248,6 +248,34 @@ button {
 /* Player grid */
 .player-grid-section { text-align: left; }
 
+.team-group {
+  margin-bottom: 20px;
+}
+.team-label {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  padding: 4px 10px;
+  border-radius: 8px;
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #fff;
+}
+.team-group--1 .team-label { background: var(--blue); }
+.team-group--2 .team-label { background: var(--green); }
+.team-group--3 .team-label { background: #B87D2A; }
+.team-group--4 .team-label { background: var(--royal); }
+
+.team-group--1 .player-btn { border-color: var(--blue); }
+.team-group--1 .player-btn:hover, .team-group--1 .player-btn:focus-visible { color: var(--blue); border-color: var(--blue); }
+.team-group--2 .player-btn { border-color: var(--green); }
+.team-group--2 .player-btn:hover, .team-group--2 .player-btn:focus-visible { color: var(--green); border-color: var(--green); }
+.team-group--3 .player-btn { border-color: #B87D2A; }
+.team-group--3 .player-btn:hover, .team-group--3 .player-btn:focus-visible { color: #B87D2A; border-color: #B87D2A; }
+.team-group--4 .player-btn { border-color: var(--royal); }
+.team-group--4 .player-btn:hover, .team-group--4 .player-btn:focus-visible { color: var(--royal); border-color: var(--royal); }
+
 .player-grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -619,6 +647,61 @@ button {
   box-shadow: var(--shadow);
 }
 .check-icon { font-size: 18px; }
+
+/* ── Catch-up (late arrival) ─────────────────── */
+
+.catchup-notice {
+  margin-top: 24px;
+  padding: 16px;
+  background: var(--citrus-dim);
+  border: 2px solid var(--citrus);
+  border-radius: var(--radius-lg);
+}
+.catchup-notice-title {
+  font-size: 14px;
+  font-weight: 600;
+  color: #7A5A00;
+  margin: 0 0 12px;
+  text-align: center;
+}
+.catchup-round-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.catchup-round-btn {
+  background: #fff;
+  border: 2px solid var(--citrus);
+  color: var(--text);
+  padding: 11px 14px;
+  border-radius: var(--radius);
+  font-size: 14px;
+  font-weight: 500;
+  text-align: left;
+  transition: all 0.15s;
+  box-shadow: var(--shadow);
+}
+.catchup-round-btn:hover, .catchup-round-btn:focus-visible {
+  background: var(--citrus-dim);
+  outline: none;
+}
+.catchup-view {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.catchup-back-btn {
+  align-self: flex-start;
+  background: none;
+  border: none;
+  color: rgba(255,255,255,0.8);
+  font-size: 14px;
+  font-weight: 500;
+  padding: 4px 0;
+  cursor: pointer;
+  text-decoration: underline;
+}
+.catchup-back-btn:hover { color: #fff; }
 
 /* ── Round Results ───────────────────────────── */
 

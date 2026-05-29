@@ -75,3 +75,20 @@ export async function nextRound() {
     phase: 'tasting',
   })
 }
+
+export async function submitRetroactiveRound(roundIndex, playerId, answers, cantParticipate) {
+  const correctOrder = ROUNDS[roundIndex].correctOrder
+  const score = calculateScore(answers, correctOrder, cantParticipate)
+  const batch = writeBatch(db)
+  batch.set(doc(db, 'rounds', String(roundIndex), 'submissions', playerId), {
+    answers: cantParticipate ? null : answers,
+    cantParticipate,
+    submittedAt: serverTimestamp(),
+    score,
+  })
+  batch.set(doc(db, 'scores', playerId), {
+    totalScore: increment(score),
+    [`roundScores.${roundIndex}`]: score,
+  }, merge)
+  await batch.commit()
+}
